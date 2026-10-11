@@ -22,14 +22,14 @@ jobs:
       - name: Download platform-tools
         run: |
           curl -L -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-windows.zip
-          7z x platform-tools.zip -o.
+          tar -xf platform-tools.zip
 
       - name: Build EXE
         run: |
           pyinstaller --onefile --windowed --name "Upganam" ^
-            --add-binary "platform-tools\\adb.exe;." ^
-            --add-binary "platform-tools\\AdbWinApi.dll;." ^
-            --add-binary "platform-tools\\AdbWinUsbApi.dll;." ^
+            --add-binary "platform-tools\adb.exe;." ^
+            --add-binary "platform-tools\AdbWinApi.dll;." ^
+            --add-binary "platform-tools\AdbWinUsbApi.dll;." ^
             Upganam.py
 
       - name: Upload artifact
