@@ -39,14 +39,17 @@ def list_dir(path="/storage/emulated/0"):
     out, _ = adb_shell(f'ls -la "{path}"')
     entries = []
     for line in out.splitlines():
-        parts = line.split(None, 5)
+        parts = line.split()
         if len(parts) < 6:
             continue
-        perm, size, name = parts[0], parts[4], parts[5]
+        perm = parts[0]
+        name = parts[-1]
         if name in (".", ".."):
             continue
+        is_dir = perm.startswith("d")
+        size = parts[3] if len(parts) == 7 else ""
         entries.append({"name": name, "path": f"{path}/{name}",
-                        "is_dir": perm.startswith("d"), "size": size})
+                        "is_dir": is_dir, "size": size})
     return entries
 
 def pull_file(remote, local):
