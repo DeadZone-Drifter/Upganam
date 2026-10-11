@@ -2,23 +2,35 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 *.spec
 build/
 dist/
 *.egg-info/
 .venv/
 venv/
+ENV/
+env/
 
 # OS
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# IDE
+# IDE & Editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# Upganam build output
+# Upganam build output & platform tools
 Upganam-Windows/
+platform-tools/
+platform-tools.zip
+
+# Upganam backup containers & test backups
+*.upg
+*.enc
+*Backup*/
+Upganam_Backup/
