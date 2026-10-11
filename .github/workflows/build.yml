@@ -25,12 +25,7 @@ jobs:
           tar -xf platform-tools.zip
 
       - name: Build EXE
-        run: |
-          pyinstaller --onefile --windowed --name "Upganam" ^
-            --add-binary "platform-tools\adb.exe;." ^
-            --add-binary "platform-tools\AdbWinApi.dll;." ^
-            --add-binary "platform-tools\AdbWinUsbApi.dll;." ^
-            Upganam.py
+        run: pyinstaller --onefile --windowed --name "Upganam" --add-binary "platform-tools\adb.exe;." --add-binary "platform-tools\AdbWinApi.dll;." --add-binary "platform-tools\AdbWinUsbApi.dll;." Upganam.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
