@@ -1,6 +1,7 @@
 """
 Core ADB management, subprocess execution, and directory parsing.
-Handles device detection, ADB binary location, shell commands, and ls output parsing.
+Handles device detection, ADB binary location, shell commands, wireless connectivity,
+and Android package manager (APK) operations.
 """
 import os
 import sys
@@ -108,6 +109,112 @@ def get_devices():
                     model = p.split(":", 1)[1]
             devices.append({"serial": serial, "state": state, "model": model})
     return devices
+
+# ── Wireless ADB Connectivity ────────────────────────────────────
+
+def adb_connect(ip_port):
+    """
+    Connect to an Android device over TCP/IP via `adb connect <ip:port>`.
+    Defaults to port 5555 if no port is specified.
+    Returns: (success: bool, message: str)
+    """
+    target = ip_port.strip()
+    if not target:
+        return False, "IP address cannot be empty."
+    if ":" not in target:
+        target += ":5555"
+
+    out, err, code = run_adb("connect", target, timeout=15)
+    combined = f"{out} {err}".strip()
+    if "connected to" in combined.lower() and "cannot" not in combined.lower() and "failed" not in combined.lower():
+        return True, combined
+    return False, combined or "Failed to connect to wireless device."
+
+def adb_disconnect(ip_port=None):
+    """
+    Disconnect a specific wireless device or all wireless sessions.
+    Returns: (success: bool, message: str)
+    """
+    args = ["disconnect"]
+    if ip_port:
+        args.append(ip_port.strip())
+    out, err, code = run_adb(*args, timeout=10)
+    return (code == 0), (out or err or "Disconnected").strip()
+
+def adb_pair(ip_port, pairing_code):
+    """
+    Pair with an Android 11+ device using a 6-digit Wi-Fi pairing code via `adb pair <ip:port> <code>`.
+    Returns: (success: bool, message: str)
+    """
+    target = ip_port.strip()
+    code_str = str(pairing_code).strip()
+    if not target:
+        return False, "Pairing address cannot be empty."
+    if not code_str:
+        return False, "Pairing code cannot be empty."
+
+    out, err, code = run_adb("pair", target, code_str, timeout=15)
+    combined = f"{out} {err}".strip()
+    if "successfully paired" in combined.lower():
+        return True, combined
+    return False, combined or "Pairing failed. Verify IP, port, and code."
+
+# ── Package Manager (APK) Operations ─────────────────────────────
+
+def list_installed_packages(serial=None, third_party_only=True):
+    """
+    List installed package identifiers on the device via `pm list packages`.
+    Defaults to non-system 3rd-party packages (-3).
+    Returns: list[str] of package names
+    """
+    flag = "-3" if third_party_only else ""
+    cmd = f"pm list packages {flag}".strip()
+    out, err, code = adb_shell(cmd, serial=serial, timeout=25)
+    if code != 0:
+        return []
+    packages = []
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("package:"):
+            pkg = line[len("package:"):].strip()
+            if pkg:
+                packages.append(pkg)
+    packages.sort()
+    return packages
+
+def get_package_apk_path(serial, package_name):
+    """
+    Retrieve the remote filesystem path to an installed application's primary base APK.
+    Returns: remote APK path as str, or None if not found
+    """
+    clean_pkg = package_name.strip()
+    out, err, code = adb_shell(f"pm path {shlex.quote(clean_pkg)}", serial=serial, timeout=15)
+    if code != 0 or not out:
+        return None
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("package:"):
+            apk_path = line[len("package:"):].strip()
+            if apk_path.endswith(".apk"):
+                return apk_path
+    return None
+
+def install_apk(serial, local_apk_path, reinstall=True):
+    """
+    Install a local APK onto the target device via `adb install -r`.
+    Returns: (success: bool, message: str)
+    """
+    if not os.path.isfile(local_apk_path):
+        return False, f"Local APK file not found at '{local_apk_path}'."
+    args = ["install"]
+    if reinstall:
+        args.append("-r")
+    args.append(local_apk_path)
+    out, err, code = run_adb(*args, serial=serial, timeout=180)
+    combined = f"{out} {err}".strip()
+    if "success" in combined.lower():
+        return True, "Application installed successfully."
+    return False, combined or "Installation failed."
 
 # ── Android Directory Parsing ────────────────────────────────────
 
