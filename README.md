@@ -93,16 +93,15 @@ pip install -r requirements.txt
 ```
 
 #### 3. Download Android Platform Tools (If not already downloaded)
-```bash
 In PowerShell or Command Prompt, download and extract Google's official platform-tools into your project folder:
 Using PowerShell:
+```bash
 curl -L -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-windows.zip
 tar -xf platform-tools.zip
 (This extracts the platform-tools/ folder containing adb.exe, AdbWinApi.dll, and AdbWinUsbApi.dll).
 ```
 
 #### 4. Compile the Standalone Executable
-```bash
 Run the PyInstaller command to compile a single, windowed .exe with all cryptographic libraries and ADB binaries bundled inside:
 
 PowerShell / Command Prompt (Single line):
