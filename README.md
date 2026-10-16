@@ -69,6 +69,7 @@ Upganam/
         ├── app.py             # Main window, device combobox & wireless dialog
         ├── backup_tab.py      # Storage browser, APK picker & backup engine
         └── restore_tab.py     # Archive inspector, integrity checker & restore engine
+```
 
 🛠️ Building from Source
 Prerequisites
