@@ -71,24 +71,53 @@ Upganam/
         └── restore_tab.py     # Archive inspector, integrity checker & restore engine
 ```
 
-🛠️ Building from Source
-Prerequisites
-Python 3.10+
-Google Platform Tools (adb.exe, AdbWinApi.dll, AdbWinUsbApi.dll) placed inside a platform-tools/ folder.
-Installation & Build
-code
-Bash
-# 1. Clone repository
+## 🛠️ Building from Source
+
+### Prerequisites
+- **Python 3.10+** (Python 3.11 recommended)
+- **Google Android Platform Tools** (`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`)
+
+---
+
+### Step-by-Step Build Instructions (Windows)
+
+#### 1. Clone the Repository
+```bash
 git clone https://github.com/DeadZone-Drifter/Upganam.git
 cd Upganam
 
-# 2. Install dependencies
+#### 2. Install Required Python Dependencies
 pip install -r requirements.txt
 
-# 3. Compile standalone Windows executable
+#### 3. Download Android Platform Tools (If not already downloaded)
+In PowerShell or Command Prompt, download and extract Google's official platform-tools into your project folder:
+Using PowerShell:
+curl -L -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-windows.zip
+tar -xf platform-tools.zip
+(This extracts the platform-tools/ folder containing adb.exe, AdbWinApi.dll, and AdbWinUsbApi.dll).
+
+#### 4. Compile the Standalone Executable
+Run the PyInstaller command to compile a single, windowed .exe with all cryptographic libraries and ADB binaries bundled inside:
+
+PowerShell / Command Prompt (Single line):
+pyinstaller --onefile --windowed --name "Upganam" --collect-all cryptography --add-binary "platform-tools\adb.exe;." --add-binary "platform-tools\AdbWinApi.dll;." --add-binary "platform-tools\AdbWinUsbApi.dll;." Upganam.py
+
+Git Bash / Unix Shell (Single line):
 pyinstaller --onefile --windowed --name "Upganam" \
   --collect-all cryptography \
   --add-binary "platform-tools/adb.exe;." \
   --add-binary "platform-tools/AdbWinApi.dll;." \
   --add-binary "platform-tools/AdbWinUsbApi.dll;." \
   Upganam.py
+
+#### 5. Output
+The standalone binary will be created at:
+dist/Upganam.exe
+You can move Upganam.exe to any folder or another Windows PC and run it immediately without installing Python or ADB!
+---
+
+### Key Flag Explanations:
+- **`--onefile`**: Packages the entire application, Python runtime, and dependencies into a single portable `.exe`.
+- **`--windowed`**: Hides the black console terminal window when launching the GUI.
+- **`--collect-all cryptography`**: Ensures PyInstaller bundles all OpenSSL C-extensions and backend AEAD cipher binaries required for `.upg` encryption.
+- **`--add-binary "platform-tools\adb.exe;."`**: Embeds Google's ADB binary into the root of the `.exe` package so users never need to install ADB separately.
