@@ -126,7 +126,7 @@ dist/Upganam.exe
 ```
 
 You can move Upganam.exe to any folder or another Windows PC and run it immediately without installing Python or ADB!
-```bash
+
 ---
 
 ### Key Flag Explanations:
@@ -134,4 +134,3 @@ You can move Upganam.exe to any folder or another Windows PC and run it immediat
 - **`--windowed`**: Hides the black console terminal window when launching the GUI.
 - **`--collect-all cryptography`**: Ensures PyInstaller bundles all OpenSSL C-extensions and backend AEAD cipher binaries required for `.upg` encryption.
 - **`--add-binary "platform-tools\adb.exe;."`**: Embeds Google's ADB binary into the root of the `.exe` package so users never need to install ADB separately.
-```
