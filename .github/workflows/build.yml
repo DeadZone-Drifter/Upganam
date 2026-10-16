@@ -29,6 +29,13 @@ jobs:
       - name: Build EXE
         run: pyinstaller --onefile --windowed --name "Upganam" --collect-all cryptography --add-binary "platform-tools\adb.exe;." --add-binary "platform-tools\AdbWinApi.dll;." --add-binary "platform-tools\AdbWinUsbApi.dll;." Upganam.py
 
+      - name: Extract package version
+        id: get_version
+        shell: bash
+        run: |
+          VERSION=$(python -c "import upganam; print(upganam.__version__)")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
@@ -39,5 +46,5 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: dist/Upganam.exe
-          tag_name: v0.1
-          name: Upganam v0.1
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Upganam v${{ steps.get_version.outputs.version }}
